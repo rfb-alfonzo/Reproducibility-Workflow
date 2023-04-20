@@ -1,0 +1,124 @@
+---
+title: "Bar graph codes for X. Fastidiosa strain colony count"
+author: "Robert Bell"
+date: "2023-04-20"
+output: pdf_document
+---
+
+````{R}
+
+
+
+###install the following packages for this assignment 
+library(ggplot2)
+library(dplyr)
+### load the data set containing your means, standard deviation and tukey vaues.  
+
+
+data <- read.csv("data set for reproducable workflow.csv")
+
+###If  you need to calculate the mean and standard deviation for your excel sheets use the following code
+###Replace the user_data_set with your own data and any grouping you'd like.
+###Replace user_value with LOG_CFU mL of your counts 
+grouped_data <- group_by(user_data_set, Group,)
+
+mean_data <- summarise(grouped_data, mean_value = mean(user_value))
+
+write.csv(mean_data, "mean_data.csv", row.names = FALSE)
+
+sd_data <- mutate(mean_data, sd_value = sd(mean_value))
+
+###now that you have the mean and standard deviations, edit cvs file with new columns and using STATISTIX 8.1 calculate the tukey values and name new column "Tukey"
+
+###Separate your data set into the grouping you'd like, for my data I need four graphs due to two antibiotics and two layers
+
+
+CMPKdata <- data %>%
+  filter(Antibiotic == "CM" & Layer == "PK")
+
+CMBIOdata <- data %>%
+  filter(Antibiotic =="CM" & Layer =="BIO")
+
+KMPKdata <- data %>%
+  filter(Antibiotic =="KM" & Layer =="PK")
+
+KMBIOdata <- data %>%
+  filter(Antibiotic == "KM" & Layer =="BIO")
+
+
+  
+###Create bar graphs showing your standard error bars and Tukey letters above 
+
+KMBIObar <- ggplot(KMBIOdata, aes(x = reorder(Strain,-Mean), y = Mean)) +  # this reorders the strains for largest to smallest LOG_CFUmL counts
+  geom_bar(stat = "identity", color = "black",
+           position = position_dodge())+
+  scale_y_continuous(expand = c(0,0),  # If your y axis starts below 0 when not intended use the following two lines of code to fix it.  0,7 indicates the axis starting at 0 and rising until 7
+                     limits = c(0,7))+ #how to show error bars
+  geom_errorbar(aes(ymin = Mean, ymax = Mean + STD), width = .2,   
+                position = position_dodge(0.8))+
+  labs(title = "Kanamycin Biofilm", x = "", y = "LOG(10) CFU/mL") +
+  theme_classic() +
+  geom_text(aes(label = Tukey), position = position_dodge(.8), size = 3, # how to show letters above error bars 
+            vjust=-2, hjust=.5, color = "black") +
+  theme(plot.title = element_text(hjust = 0.5))+  # center your plot title
+  theme(axis.text.x = element_text(angle = 45,hjust = 1,vjust = 1, size = 6)) # the values are hard to read so rotate them (.45 is the angle) to your desired angle
+  
+KMBIObar     #view the bar graph for your grouping     
+
+
+#### for the rest of your groups of data, copy and paste the same code but replace these codes
+### Change the name of the bar data (KMPKbar -> other data group)
+###change the ggplot(data) 
+###edit the title  from labs(title())
+###leave remaining code the same 
+
+KMPKbar <- ggplot(KMPKdata, aes(x = reorder(Strain,-Mean), y = Mean)) +
+  geom_bar(stat = "identity", color = "black",
+           position = position_dodge())+
+  scale_y_continuous(expand = c(0,0),
+                     limits = c(0,7))+
+  geom_errorbar(aes(ymin = Mean, ymax = Mean + STD), width = .2,
+                position = position_dodge(0.8))+
+  labs(title = "Kanamycin Planktonic", x = "", y = "LOG(10) CFU/mL") +
+  theme_classic() +
+  geom_text(aes(label = Tukey), position = position_dodge(.8), size = 3,
+            vjust=-2, hjust=.5, color = "black") +
+  theme(plot.title = element_text(hjust = 0.5))+
+  theme(axis.text.x = element_text(angle = 45,hjust = 1,vjust = 1, size = 6))
+
+KMPKbar
+
+
+CMPKbar <- ggplot(CMPKdata, aes(x = reorder(Strain,-Mean), y = Mean)) +
+  geom_bar(stat = "identity", color = "black",
+           position = position_dodge())+
+  scale_y_continuous(expand = c(0,0),
+                     limits = c(0,7))+
+  geom_errorbar(aes(ymin = Mean, ymax = Mean + STD), width = .2,
+                position = position_dodge(0.8))+
+  labs(title = "Chloramphenicol Planktonic", x = "", y = "LOG(10) CFU/mL") +
+  theme_classic() +
+  geom_text(aes(label = Tukey), position = position_dodge(.8), size = 3,
+            vjust=-2, hjust=.5, color = "black") +
+  theme(plot.title = element_text(hjust = 0.5))+
+  theme(axis.text.x = element_text(angle = 45,hjust = 1,vjust = 1, size = 6))
+
+CMPKbar
+
+
+CMBIObar <- ggplot(CMBIOdata, aes(x = reorder(Strain,-Mean), y = Mean)) +
+  geom_bar(stat = "identity", color = "black",
+           position = position_dodge())+
+  scale_y_continuous(expand = c(0,0),
+                     limits = c(0,7))+
+  geom_errorbar(aes(ymin = Mean, ymax = Mean + STD), width = .2,
+                position = position_dodge(0.8))+
+  labs(title = "Chloramphenicol Biofilm", x = "", y = "LOG(10) CFU/mL") +
+  theme_classic() +
+  geom_text(aes(label = Tukey), position = position_dodge(.8), size = 3,
+            vjust=-2, hjust=.5, color = "black") +
+  theme(plot.title = element_text(hjust = 0.5))+
+  theme(axis.text.x = element_text(angle = 45,hjust = 1,vjust = 1, size = 6))
+
+
+```
